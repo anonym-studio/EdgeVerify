@@ -14,10 +14,21 @@ Serverless web app on **Cloudflare Pages + Pages Functions** that displays a vis
 
 ```
 EdgeVerify/
-├── index.html              # Frontend SPA
-├── functions/api/info.js   # Edge function → GET /api/info
-├── docs/                   # Architecture, API spec, VPN detection docs
-└── spec/                   # Original design spec (Japanese)
+├── src/
+│   ├── main.tsx / App.tsx
+│   ├── index.css               # Tailwind CSS v4 + shadcn/ui vars (orange theme)
+│   ├── types/api.ts
+│   ├── lib/utils.ts
+│   ├── hooks/useConnectionInfo.ts
+│   └── components/
+│       ├── ui/                 # shadcn/ui components
+│       ├── HeroCard.tsx
+│       ├── InfoCard.tsx
+│       ├── BrowserCard.tsx
+│       └── CopyButton.tsx
+├── functions/api/info.js       # Edge function → GET /api/info
+├── dist/                       # Build output (gitignored)
+└── index.html                  # Vite entry HTML
 ```
 
 ## Coding Rules
@@ -28,15 +39,16 @@ EdgeVerify/
 - `context.request.cf` contains Cloudflare metadata (empty `{}` in local dev)
 - Always set fallback values; never let an unhandled error break the response
 
-### Frontend (`index.html`)
-- **Vanilla JS only** — no React, Vue, or other frameworks
-- **Tailwind CSS via CDN** — do not add a build step
-- Fetch `/api/info`, merge with browser-side data (`screen`, `navigator`, WebRTC), then render
+### Frontend (`src/`)
+- **React 19 + TypeScript** — function components only, no class components
+- **shadcn/ui** components in `src/components/ui/` — do not modify shadcn internals
+- **Tailwind CSS v4** via `@tailwindcss/vite` plugin — no `tailwind.config.ts` needed
+- Do not introduce new npm dependencies without discussion (package manager: pnpm)
 
-### General
-- Write comments only when the *why* is non-obvious
-- No `console.log` left in production code (use `console.error` for caught exceptions only)
-- Do not introduce new npm dependencies without discussion
+### Design
+- White background (`--background: oklch(1 0 0)`)
+- Orange primary accent (`--primary: oklch(0.705 0.213 47.604)` ≈ orange-500)
+- Destructive (red) for Tor detection; amber/orange for VPN warning
 
 ## Key Constraints
 
@@ -46,6 +58,7 @@ EdgeVerify/
 | `cf.isTor` | Non-public Cloudflare property — may be absent |
 | `cf.botManagement.score` | Paid Cloudflare plan only |
 | Local dev `request.cf` | Always `{}` — all cf fields fall back to defaults |
+| Node.js | v21 — use Vite v5 (Vite v8 requires Node 22+) |
 
 ## Security Non-Negotiables
 

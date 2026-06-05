@@ -40,11 +40,31 @@ Jamstack 構成（静的フロントエンド + サーバーレス API）。す�
 - `ip-api.com` を非同期 fetch して逆引き・ISP 情報を補強
 - レスポンスにユーザーデータを保持しない（一時処理のみ）
 
-### フロントエンド（Vanilla JS + Tailwind CSS）
+### フロントエンド（React + TypeScript + Vite + shadcn/ui）
 
-- `/api/info` を fetch してレスポンスを DOM に描画
-- WebRTC（`RTCPeerConnection`）でローカル IP 取得を試みる
+- React 19 + TypeScript で構築。Vite 5 でビルド（`dist/` に出力）
+- shadcn/ui コンポーネント + Tailwind CSS v4 で白ベース・オレンジ差し色のデザイン
+- `useConnectionInfo` フックで `/api/info` を fetch し、WebRTC ローカル IP 取得と並行実行
 - 画面解像度・言語設定など、ブラウザ側のみで取得可能な情報を付加
+
+**コンポーネント構成**
+
+```
+App.tsx
+├── Header
+│   ├── ロゴ + キャッチコピー（sm以上で表示）
+│   ├── HelpDialog    — ヘルプモーダル（概要・使い方・注意事項）
+│   ├── JSON コピーボタン
+│   └── 更新ボタン
+├── HeroCard          — IP アドレス + VPN ステータスバッジ
+├── InfoCard × 4      — 基本情報 / 回線 / セキュリティ / 位置情報
+│   └── 各ラベルにツールチップ（点線下線 → ホバーで説明表示）
+└── BrowserCard       — ブラウザ環境（WebRTC ローカル IP 含む）
+```
+
+**ツールチップ設計**
+
+各 InfoCard の行ラベルに `tooltip` プロパティを渡すことで、ラベルに点線アンダーラインを表示し、ホバー（タップ）で項目の説明を表示する。ツールチップ文言は `App.tsx` の `TT` オブジェクトに集約して管理する。
 
 ## データソース対応表
 

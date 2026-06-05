@@ -10,16 +10,24 @@ No user data is persisted anywhere — backend is stateless by design.
 
 ```
 EdgeVerify/
-├── index.html              # Frontend SPA (Tailwind CSS CDN + Vanilla JS)
-├── functions/
-│   └── api/
-│       └── info.js         # Edge function → GET /api/info
+├── src/
+│   ├── main.tsx / App.tsx       # React entry + root component
+│   ├── index.css                # Tailwind CSS v4 + shadcn/ui vars (orange theme)
+│   ├── types/api.ts             # API response type definitions
+│   ├── lib/utils.ts             # cn() utility
+│   ├── hooks/useConnectionInfo.ts
+│   └── components/
+│       ├── ui/                  # shadcn/ui components
+│       ├── HeroCard.tsx
+│       ├── InfoCard.tsx
+│       ├── BrowserCard.tsx
+│       └── CopyButton.tsx
+├── functions/api/info.js        # Edge function → GET /api/info
+├── dist/                        # Build output (gitignored)
 ├── docs/
-│   ├── architecture.md     # System architecture
-│   ├── api-spec.md         # API response fields reference
-│   └── vpn-detection.md    # VPN/proxy detection logic
-├── spec/                   # Original design spec (Japanese)
-├── package.json
+├── index.html                   # Vite entry HTML
+├── vite.config.ts
+├── components.json              # shadcn/ui config (baseColor: orange)
 └── wrangler.toml
 ```
 
@@ -29,21 +37,25 @@ EdgeVerify/
 |-------|-----------|
 | Hosting | Cloudflare Pages |
 | Backend | Cloudflare Pages Functions (ES Modules, Workers runtime) |
-| Frontend | HTML + Tailwind CSS (CDN) + Vanilla JS |
+| Frontend | React 19 + TypeScript + Vite 5 |
+| UI | shadcn/ui + Tailwind CSS v4 (white base, orange accent) |
 | External API | ip-api.com (reverse DNS, ISP enrichment) |
 
 ## Development
 
 ```bash
-npm install
-npm run dev     # Starts at http://localhost:8788
-npm run deploy  # Deploys to Cloudflare Pages
+pnpm install
+
+pnpm dev            # Vite + Wrangler concurrently → open http://localhost:8788
+pnpm build          # tsc + vite build → dist/
+pnpm ship         # build + wrangler pages deploy dist
 ```
 
 ## Coding Rules
 
 - **Backend** (`functions/`): ES Modules only — `export async function onRequest(context)`
-- **Frontend**: Vanilla JS only. No JS libraries beyond Tailwind CDN.
+- **Frontend**: React function components + TypeScript. Do not add new dependencies.
+- shadcn/ui components live in `src/components/ui/`.
 - Comments only when the *why* is non-obvious (not what the code does).
 - On error: never throw unhandled exceptions; set fallback values and return a valid response.
 

@@ -16,44 +16,53 @@
 |--------|------|
 | ホスティング | Cloudflare Pages |
 | バックエンド | Cloudflare Pages Functions (ES Modules) |
-| フロントエンド | HTML + Tailwind CSS (CDN) + Vanilla JS |
+| フロントエンド | React 19 + TypeScript + Vite 5 |
+| UI | shadcn/ui + Tailwind CSS v4（白ベース・オレンジ差し色）|
 | 外部API | ip-api.com (逆引き・ISP補強、無料枠: 45 req/min) |
 
 ## プロジェクト構成
 
 ```
 EdgeVerify/
-├── index.html              # フロントエンド（SPA）
+├── src/
+│   ├── main.tsx / App.tsx
+│   ├── index.css               # Tailwind CSS v4 + shadcn/ui 変数
+│   ├── types/ hooks/ lib/
+│   └── components/
+│       ├── ui/                 # shadcn/ui コンポーネント
+│       ├── HeroCard.tsx
+│       ├── InfoCard.tsx
+│       ├── BrowserCard.tsx
+│       └── CopyButton.tsx
 ├── functions/
 │   └── api/
-│       └── info.js         # エッジ関数 → GET /api/info
+│       └── info.js             # エッジ関数 → GET /api/info
+├── index.html                  # Vite エントリ HTML
+├── vite.config.ts
+├── components.json             # shadcn/ui 設定
 ├── package.json
-├── wrangler.toml
-└── spec/
-    └── 高機能回線情報チェッカー「EdgeVerify」詳細設計ドキュメント.md
+└── wrangler.toml
 ```
 
 ## ローカル開発
 
 ```bash
-npm install
-npm run dev    # http://localhost:8788 で起動
+pnpm install
+pnpm dev    # Vite + Wrangler を同時起動 → http://localhost:8788
 ```
 
-Wrangler が `functions/` ディレクトリを自動認識し、Pages Functions を含めた完全なローカル環境を提供します。
-
-`request.cf` はローカルでは `{}` になるため、フォールバック値（`"Unknown"` / `0`）が表示されます。
+`request.cf` はローカルでは wrangler がシミュレート値を返します。
 
 ## デプロイ
 
 ```bash
-npm run deploy
+pnpm ship   # tsc + vite build → wrangler pages deploy dist
 ```
 
 初回は Cloudflare アカウントへのログインが必要です:
 
 ```bash
-npx wrangler login
+pnpm wrangler login
 ```
 
 ## API
