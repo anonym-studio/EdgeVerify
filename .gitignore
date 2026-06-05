@@ -1,11 +1,37 @@
+# Dependencies
 node_modules/
+
+# Wrangler / Cloudflare
 .wrangler/
 dist/
-
-# ローカル環境変数（シークレット等）
 .dev.vars
-.env
-*.local
+.dev.vars.local
 
-# macOS
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS
 .DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs
+*.log
+npm-debug.log*
+
+# Cache
+.cache/
+.parcel-cache/
+

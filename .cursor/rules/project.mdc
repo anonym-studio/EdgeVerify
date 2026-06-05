@@ -1,0 +1,60 @@
+---
+description: EdgeVerify project rules — apply to all files
+globs:
+alwaysApply: true
+---
+
+# EdgeVerify Project Rules
+
+## What This Project Is
+
+Serverless web app on **Cloudflare Pages + Pages Functions** that displays a visitor's connection info (IP, ISP, VPN/proxy, geolocation) in real time. No database. No logging. No user data persistence.
+
+## Directory Layout
+
+```
+EdgeVerify/
+├── index.html              # Frontend SPA
+├── functions/api/info.js   # Edge function → GET /api/info
+├── docs/                   # Architecture, API spec, VPN detection docs
+└── spec/                   # Original design spec (Japanese)
+```
+
+## Coding Rules
+
+### Backend (`functions/`)
+- ES Modules only: `export async function onRequest(context)`
+- Runs on the **Cloudflare Workers runtime** (not Node.js — some Node APIs are unavailable)
+- `context.request.cf` contains Cloudflare metadata (empty `{}` in local dev)
+- Always set fallback values; never let an unhandled error break the response
+
+### Frontend (`index.html`)
+- **Vanilla JS only** — no React, Vue, or other frameworks
+- **Tailwind CSS via CDN** — do not add a build step
+- Fetch `/api/info`, merge with browser-side data (`screen`, `navigator`, WebRTC), then render
+
+### General
+- Write comments only when the *why* is non-obvious
+- No `console.log` left in production code (use `console.error` for caught exceptions only)
+- Do not introduce new npm dependencies without discussion
+
+## Key Constraints
+
+| Item | Constraint |
+|------|-----------|
+| ip-api.com | HTTP only (free tier), 45 req/min rate limit |
+| `cf.isTor` | Non-public Cloudflare property — may be absent |
+| `cf.botManagement.score` | Paid Cloudflare plan only |
+| Local dev `request.cf` | Always `{}` — all cf fields fall back to defaults |
+
+## Security Non-Negotiables
+
+- Backend must never persist user data (no DB writes, no logging to external services)
+- Every response: `Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate`
+- `Access-Control-Allow-Origin: *` is intentional (public read-only API)
+
+## Reference
+
+- `docs/architecture.md` — system design and data source table
+- `docs/api-spec.md` — full JSON response schema
+- `docs/vpn-detection.md` — VPN detection flow and edge cases

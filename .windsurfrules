@@ -1,0 +1,74 @@
+# EdgeVerify — Windsurf Rules
+
+## Project Overview
+
+EdgeVerify is a serverless web app on **Cloudflare Pages + Pages Functions**.
+It shows visitors real-time connection info: IP address, ISP, VPN/proxy detection, TLS details, and geolocation.
+The backend is stateless — no database, no logging, no user data persistence.
+
+## Architecture
+
+```
+Browser
+  │
+  ├── GET /          → Cloudflare Pages serves index.html (static)
+  └── GET /api/info  → Cloudflare Pages Functions runs functions/api/info.js
+                           │
+                           └── fetch → ip-api.com (reverse DNS, ISP, proxy flag)
+```
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Hosting | Cloudflare Pages |
+| Backend | Cloudflare Pages Functions (ES Modules) |
+| Runtime | Cloudflare Workers (V8-based, not Node.js) |
+| Frontend | HTML + Tailwind CSS CDN + Vanilla JS |
+| External | ip-api.com |
+
+## Coding Standards
+
+### Backend (`functions/api/info.js`)
+
+- Export pattern: `export async function onRequest(context)`
+- Always guard `request.cf`: `const cf = request.cf || {}`
+  — `request.cf` is `{}` in local development (wrangler pages dev)
+- Use `fetch()` (Workers Fetch API) for external HTTP calls
+- Catch all external API errors; set fallback values; always return HTTP 200
+- Required response headers:
+  ```
+  Content-Type: application/json; charset=utf-8
+  Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate
+  Access-Control-Allow-Origin: *
+  ```
+
+### Frontend (`index.html`)
+
+- Vanilla JS only — no React, Vue, Svelte, or other frameworks
+- Tailwind CSS via CDN only — no build pipeline
+- Use `textContent` (not `innerHTML`) when rendering API data to DOM
+- Fetch `/api/info` on page load, merge with browser-side data, then render
+
+## Constraints
+
+| Constraint | Details |
+|-----------|---------|
+| ip-api.com protocol | HTTP only (free tier does not support HTTPS) |
+| ip-api.com rate limit | 45 requests/minute — handle HTTP 429 with fallback |
+| `cf.isTor` | Unofficial property — treat absence as `false` |
+| `cf.botManagement.score` | Requires Cloudflare paid plan — show `"N/A"` on free tier |
+| WebRTC local IP | Modern browsers return mDNA UUID — show user-friendly message |
+
+## Security Non-Negotiables
+
+1. Never persist user IP or connection data (no DB, no external log service)
+2. All API responses must include `Cache-Control: no-store`
+3. DOM rendering must use `textContent` to prevent XSS
+
+## Key Reference Files
+
+- `docs/architecture.md` — full system design
+- `docs/api-spec.md` — complete JSON response schema with field descriptions
+- `docs/vpn-detection.md` — VPN/proxy detection algorithm and known limitations
+- `spec/` — original Japanese design document
