@@ -1,5 +1,7 @@
 # デプロイ手順
 
+**本番 URL**: https://edge-verify.pages.dev/
+
 ## 概要
 
 EdgeVerify は Cloudflare Pages にデプロイする。フロントエンド（`dist/`）と Pages Functions（`functions/`）を wrangler が一括でアップロードする。
@@ -67,6 +69,8 @@ pnpm ship
 ```
 ✨ Deployment complete! Take a look over at https://edge-verify.pages.dev
 ```
+
+本番 URL: **https://edge-verify.pages.dev/**
 
 ---
 

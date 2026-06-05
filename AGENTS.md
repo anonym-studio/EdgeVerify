@@ -6,6 +6,8 @@ EdgeVerify is a serverless web app running on Cloudflare Pages + Pages Functions
 It visualizes a visitor's connection info (IP, ISP, VPN/proxy detection, geolocation) in real time.
 No user data is persisted anywhere — backend is stateless by design.
 
+**Production URL**: https://edge-verify.pages.dev/
+
 ## Repository Structure
 
 ```

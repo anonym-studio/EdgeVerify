@@ -4,6 +4,8 @@
 
 アクセスユーザーの接続情報（IPアドレス・回線品質・VPN/プロキシ検知・位置情報など）をリアルタイムで可視化するWebツール。Cloudflare Pages + Pages Functions で動作するサーバーレス構成。
 
+**→ https://edge-verify.pages.dev/**
+
 ## 特徴
 
 - **完全サーバーレス**: Cloudflare 無料枠のみで運用可能
@@ -33,6 +35,7 @@ EdgeVerify/
 │       ├── HeroCard.tsx
 │       ├── InfoCard.tsx
 │       ├── BrowserCard.tsx
+│       ├── HelpDialog.tsx
 │       └── CopyButton.tsx
 ├── functions/
 │   └── api/
@@ -65,11 +68,17 @@ pnpm ship   # tsc + vite build → wrangler pages deploy dist
 pnpm wrangler login
 ```
 
+詳細は [docs/deployment.md](docs/deployment.md) を参照してください。
+
 ## API
 
 ### `GET /api/info`
 
 アクセス元の接続情報を JSON で返します。ログ保存なし、キャッシュなし。
+
+```
+https://edge-verify.pages.dev/api/info
+```
 
 ```jsonc
 {
@@ -89,8 +98,7 @@ pnpm wrangler login
     "isTor": false,
     "isVpnOrProxy": false,
     "vpnDetectionType": "未検出",
-    "threatScore": 0,
-    "botScore": "N/A"
+    "threatScore": 0
   },
   "geo": {
     "country": "JP",
