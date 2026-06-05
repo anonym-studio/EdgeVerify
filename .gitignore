@@ -1,0 +1,11 @@
+node_modules/
+.wrangler/
+dist/
+
+# ローカル環境変数（シークレット等）
+.dev.vars
+.env
+*.local
+
+# macOS
+.DS_Store
